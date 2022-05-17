@@ -44,6 +44,34 @@ class TransaksiController extends Controller
         ], 400);// not Found
     }
 
+    public function showTransaksiJoinLengkap(Request $request, $idTransaksi){
+        $transaksi = Transaksi::leftJoin('pembayarans', 'pembayarans.idPembayaran', '=', 'transaksis.idPembayaran')
+                    ->leftJoin('users', 'users.idCustomer', '=', 'transaksis.idCustomer')
+                    ->leftJoin('drivers', 'drivers.idDriver', '=', 'transaksis.idDriver')
+                    ->leftJoin('pegawais', 'pegawais.idPegawai', '=', 'transaksis.idPegawai')
+                    ->leftJoin('mobils', 'mobils.idMobil', '=', 'pembayarans.idMobil')
+                    ->leftJoin('promos', 'promos.idPromo', '=', 'pembayarans.idPromo')
+                    ->where('transaksis.idTransaksi', '=', $idTransaksi)
+                    ->first(); // mencari data berdasarkan id
+
+        $diff = Transaksi::selectRaw("DATEDIFF(transaksis.tanggalWaktuSelesai, transaksis.tanggalWaktuSewa) as diff")
+        ->where('transaksis.idTransaksi', '=', $idTransaksi)
+        ->first();
+
+        if(!is_null($transaksi)){
+            return response([
+                'message' => 'Retrieve Transaksi Success',
+                'data' => $transaksi,
+                'diff' => $diff,
+            ], 200);// Found
+        }
+
+        return response([
+            'message' => 'Transaksi Not Found',
+            'data' => null
+        ], 400);// not Found
+    }
+
     public function showTransaksiInProgress(Request $request, $idCustomer){
         $transaksi = Transaksi::where('idCustomer' , '=', $idCustomer)
                     ->join('pembayarans', 'pembayarans.idPembayaran', '=', 'transaksis.idPembayaran')
@@ -303,7 +331,17 @@ class TransaksiController extends Controller
         if($validate->fails())
             return response(['message' => $validate->errors()], 400);// if validate errors
 
+        $substr_TRN = Str::substr((string)$transaksi->idTransaksi, 0,3);
+        $substr_Tanggal = Str::substr((string)$transaksi->idTransaksi, 3,6);
+        $substr_id = Str::substr((string)$transaksi->idTransaksi, 12);
+        if($updateTransaksi['idDriver'] == null || $updateTransaksi['idDriver'] == 'null' ){
+            $jenisTransaksi = '00';
+        }else{
+            $jenisTransaksi = '01';
+        }
+
         //menimpa data
+        $transaksi->idTransaksi = $substr_TRN.$substr_Tanggal.$jenisTransaksi.'-'.$substr_id;
         $transaksi->idPegawai = $updateTransaksi['idPegawai'];
         $transaksi->idCustomer = $updateTransaksi['idCustomer'];
         $transaksi->idPembayaran = $updateTransaksi['idPembayaran'];

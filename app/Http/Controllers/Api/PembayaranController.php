@@ -204,4 +204,76 @@ class PembayaranController extends Controller
             'data' => null
         ], 400);
     }
+
+    public function updateStatus(Request $request, $id){
+        $pembayaran = Pembayaran::where('idPembayaran' , '=', $id)->first(); // mencari data berdasarkan id
+
+        if(is_null($pembayaran)){
+            return response([
+                'message' => 'Pembayaran not Found',
+                'data' => null
+            ], 400); // not Found
+        }
+
+        $updateData = $request->all();
+        $validate = Validator($updateData, [
+            'statusPembayaran' => 'required|max:60',
+        ]);// validai inputan
+
+        if($validate->fails())
+            return response(['message' => $validate->errors()], 400);// if validate errors
+
+        //menimpa data
+        $pembayaran->statusPembayaran = $updateData['statusPembayaran'];
+
+        if($pembayaran->save()){
+            return response([
+                'message' => 'Update Status Pembayaran Success',
+                'data' => $pembayaran
+            ], 200);
+        }
+
+        return response([
+            'message' => 'Update Status Pembayaran Failed',
+            'data' => null
+        ], 400);
+    }
+
+    public function updateBuktiTransaksi(Request $request, $id){
+        $pembayaran = Pembayaran::where('idPembayaran' , '=', $id)->first(); // mencari data berdasarkan id
+
+        $err_message = array(array('Pembayaran Not Found'));
+        if(is_null($pembayaran)){
+            return response([
+                'message' => $err_message,
+                'data' => null
+            ], 400); //not Found
+        }
+
+        $dataUpdate = $request->all();
+        $validate = Validator($dataUpdate, [
+            'buktiTransfer' => 'max:1024|mimes:jpg,png,jpeg|image',
+        ]);// validasi inputan
+
+        if($validate->fails())
+            return response(['message' => $validate->errors()], 400);// if validate errors
+
+        if(isset($request->buktiTransfer)) {
+            $buktiTransfer = $request->buktiTransfer->store('bukti_transfer', ['disk' => 'public']);
+            $pembayaran->buktiTransfer = $buktiTransfer;
+        }
+
+        if($pembayaran->save()){
+            return response([
+                'message' => 'Update Bukti Transfer Success',
+                'data' => $pembayaran
+            ], 200);
+        }
+
+        $err_message = array(array('Update Bukti Transfer Failed'));
+        return response([
+            'message' => $err_message,
+            'data' => null
+        ], 400);
+    }
 }
