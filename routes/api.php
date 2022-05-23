@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Route;
  *  LOGIN CUSTOMER, DRIVER, PEGAWAI
  */
 Route::post('login', 'Api\AuthController@login');
+Route::post('loginMobile', 'Api\AuthController@loginMobile');
 
 /**
  * RESGITER FOR CUSTOMER
@@ -102,6 +103,7 @@ Route::post('updateByAdmin/driver/{id}','Api\DriverController@updateByAdmin');
 Route::put('updateBerkas/driver/{id}','Api\DriverController@updateBerkas');
 Route::put('updateStatusKetersediaan/driver/{id}','Api\DriverController@updateStatusKetersediaan');
 Route::put('updateStatusAktif/driver/{id}','Api\DriverController@updateStatusAktif');
+Route::put('updateRatingDriver/driver/{idD}','Api\DriverController@updateRatingDriver');
 Route::delete('destroy/driver/{id}','Api\DriverController@destroy');
 //--------------------------------------------------------------------------------------
 //Mitra(role by Admin)
@@ -177,6 +179,7 @@ Route::put('updateStatusFirstTime/transaksi/{id}','Api\TransaksiController@updat
 Route::put('updateStatusBerkas/customer/{id}','Api\UserController@updateStatus');
 Route::get('showAll/customer','Api\UserController@index');
 Route::get('showLengkap/transaksi/{idT}','Api\TransaksiController@showTransaksiJoinLengkap');
+Route::get('showLengkapByCustomer/transaksi/{idC}','Api\TransaksiController@showTransaksiJoinLengkapByCustomer');
 Route::get('showMenungguKonfirmasi/transaksi','Api\TransaksiController@showTransaksiMenungguKonfirmasi');
 Route::get('showForCS/transaksi/{status}','Api\TransaksiController@showTransaksiForCS');
 Route::get('showUbah/transaksi/{idC}','Api\TransaksiController@showUbahTransaksiCustomer');

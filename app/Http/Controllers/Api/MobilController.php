@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Mobil;
-use Validator; 
+use Validator;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -18,14 +18,14 @@ class MobilController extends Controller
                                 ->select(DB::raw("*, DATEDIFF(mobils.periodeKontrakAkhir, $start) as diff"))
                                 ->where('mobils.idMobil' , '!=', null)
                                 ->get();
-    
+
         if(count($mobil)>0){
             return response([
                 'message' => 'Retrieve All Success',
                 'data' => $mobil
             ], 200);
         }//return semua data
-        
+
         $err_message = array(array('Empty'));
         return response([
             'message' => $err_message,
@@ -38,14 +38,14 @@ class MobilController extends Controller
                 ->select(DB::raw("*"))
                 ->where('mobils.statusKetersediaanMobil' , '!=', 0)
                 ->get();
-    
+
         if(count($mobil)>0){
             return response([
                 'message' => 'Retrieve All Success',
                 'data' => $mobil
             ], 200);
         }//return semua data
-        
+
         $err_message = array(array('Empty'));
         return response([
             'message' => $err_message,
@@ -80,7 +80,7 @@ class MobilController extends Controller
                 'data' => $mobil
             ], 200);
         }//return semua data
-        
+
         $err_message = array(array('Empty'));
         return response([
             'message' => $err_message,
@@ -125,7 +125,7 @@ class MobilController extends Controller
             'gambarMobil' => 'required|max:1024|mimes:jpg,png,jpeg|image',
             'periodeKontrakMulai' => 'required',
             'periodeKontrakAkhir' => 'after_or_equal:periodeKontrakMulai'
-        ], [], 
+        ], [],
         [
             'namaMobil' => 'Nama Mobil',
             'tipeMobil' => 'Tipe Mobil',
@@ -143,11 +143,11 @@ class MobilController extends Controller
             'periodeKontrakMulai' => 'Tanggal Mulai Kontrak',
             'periodeKontrakAkhir' => 'Tanggal Selesai Kontrak'
         ]);// validai inputan
-        
+
         $err_message = array(array('Pastikan Semua Field Terisi'));
-        if($createMobil['namaMobil'] == 'null' || $createMobil['tipeMobil'] == 'null' || $createMobil['jenisTransmisi'] == 'null' || 
-            $createMobil['jenisBahanBakar'] == 'null' || $createMobil['volumeBahanBakar'] == 'null' || $createMobil['warnaMobil'] == 'null' || 
-            $createMobil['kapasitasPenumpang'] == 'null' || $createMobil['fasilitas'] == 'null' || $createMobil['platNomor'] == 'null' || 
+        if($createMobil['namaMobil'] == 'null' || $createMobil['tipeMobil'] == 'null' || $createMobil['jenisTransmisi'] == 'null' ||
+            $createMobil['jenisBahanBakar'] == 'null' || $createMobil['volumeBahanBakar'] == 'null' || $createMobil['warnaMobil'] == 'null' ||
+            $createMobil['kapasitasPenumpang'] == 'null' || $createMobil['fasilitas'] == 'null' || $createMobil['platNomor'] == 'null' ||
             $createMobil['nomorSTNK'] == 'null' || $createMobil['kategoriAset'] == 'null' || $createMobil['hargaSewaMobil'] == 'null' ||
             $createMobil['tanggalTerakhirServis'] == 'null'){
                 return response(['message' => $err_message], 400); //return eror invalid input
@@ -167,10 +167,10 @@ class MobilController extends Controller
                 return response(['message' => $err_message], 400); //return eror invalid input
             }
         }
-        
+
         if($validate->fails())
             return response(['message' => $validate->errors()], 400);// if validate errors
-        
+
         if($createMobil['idMitra'] == 'null'){
             $createMobil['idMitra'] = NULL;
         }
@@ -224,8 +224,8 @@ class MobilController extends Controller
                 'data' => null
             ], 400); //Mobil not Found
         }
-        
-        $updateMobil = $request->all();    
+
+        $updateMobil = $request->all();
         $validate = Validator($updateMobil, [
             'namaMobil' => 'required|max:60',
             'tipeMobil' => 'required|max:20',
@@ -246,9 +246,9 @@ class MobilController extends Controller
         ]);// validai inputan
 
         $err_message = array(array('Pastikan Semua Field Terisi'));
-        if($updateMobil['namaMobil'] == null || $updateMobil['tipeMobil'] == null || $updateMobil['jenisTransmisi'] == null || 
-            $updateMobil['jenisBahanBakar'] == null || $updateMobil['volumeBahanBakar'] == null || $updateMobil['warnaMobil'] == null || 
-            $updateMobil['kapasitasPenumpang'] == null || $updateMobil['fasilitas'] == null || $updateMobil['platNomor'] == null || 
+        if($updateMobil['namaMobil'] == null || $updateMobil['tipeMobil'] == null || $updateMobil['jenisTransmisi'] == null ||
+            $updateMobil['jenisBahanBakar'] == null || $updateMobil['volumeBahanBakar'] == null || $updateMobil['warnaMobil'] == null ||
+            $updateMobil['kapasitasPenumpang'] == null || $updateMobil['fasilitas'] == null || $updateMobil['platNomor'] == null ||
             $updateMobil['nomorSTNK'] == null || $updateMobil['kategoriAset'] == null || $updateMobil['hargaSewaMobil'] == null ||
             $updateMobil['tanggalTerakhirServis'] == null){
                 return response(['message' => $err_message], 400); //return eror invalid input
@@ -268,7 +268,7 @@ class MobilController extends Controller
                 return response(['message' => $err_message], 400); //return eror invalid input
             }
         }
-        
+
         if($updateMobil['idMitra'] == 'null'){
             $updateMobil['idMitra'] = NULL;
         }
@@ -280,12 +280,12 @@ class MobilController extends Controller
         }
         if($validate->fails())
             return response(['message' => $validate->errors()], 400);// if validate errors
-        
+
         if(isset($request->gambarMobil)) {
             $gambarMobil = $request->gambarMobil->store('gambar_mobil', ['disk' => 'public']);
             $mobil->gambarMobil = $gambarMobil;
         }
-            
+
         //menimpa data
         $mobil->idMitra = $updateMobil['idMitra'];
         $mobil->namaMobil = $updateMobil['namaMobil'];
@@ -329,15 +329,15 @@ class MobilController extends Controller
                 'data' => null
             ], 400); //Mobil not Found
         }
-        
-        $updateMobil = $request->all();    
+
+        $updateMobil = $request->all();
         $validate = Validator($updateMobil, [
             'statusKetersediaanMobil' => 'required',
-        ]);// validai inputan 
+        ]);// validai inputan
 
         if($validate->fails())
             return response(['message' => $validate->errors()], 400);// if validate errors
-            
+
         //menimpa data
         $mobil->statusKetersediaanMobil = $updateMobil['statusKetersediaanMobil'];
 

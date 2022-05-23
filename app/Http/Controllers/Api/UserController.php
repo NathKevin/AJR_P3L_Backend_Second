@@ -253,12 +253,13 @@ class UserController extends Controller
                 'message' => 'Update Password User Success',
                 'data' => $user
             ], 200);
-        }// return data course yang telah di edit dalam bentuk json
+        }else{
+            return response([
+                'message' => 'Update Password User Failed',
+                'data' => null
+            ], 400); //return message saat course gagal di edit
+        }
 
-        return response([
-            'message' => 'Update Password User Failed',
-            'data' => null
-        ], 400); //return message saat course gagal di edit
     }
 
     public function deleteSIM($id){

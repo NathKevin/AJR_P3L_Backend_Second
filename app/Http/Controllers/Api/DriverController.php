@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Carbon\Carbon; //library time
 use App\Models\Driver;
+use App\Models\Transaksi;
 use Validator;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
@@ -496,6 +497,54 @@ class DriverController extends Controller
       3. sum all rating driver from get transaksi
       4. divide sum and count
       5. save */
+
+    public function updateRatingDriver(Request $request, $idDriver){
+        $transaksi = Transaksi::leftJoin('pembayarans', 'pembayarans.idPembayaran', '=', 'transaksis.idPembayaran')
+                    ->leftJoin('drivers', 'drivers.idDriver', '=', 'transaksis.idDriver')
+                    ->where('transaksis.idDriver', '=', $idDriver)
+                    ->get(); // mencari data berdasarkan id
+
+        $driver = Driver::find($idDriver);
+
+        if(is_null($driver)){
+            return response([
+                'message' => 'Driver Not Found',
+                'data' => $driver
+            ], 200);
+        }//return 1 data driver yang ditemukan berdasarkan id
+
+        $count = 0;
+        $sumRate = 0;
+
+        if(count($transaksi)>0){
+            foreach($transaksi as $t){
+                if($t['rateDriver'] != null){
+                    $count = $count + 1;
+                    $sumRate = $sumRate + $t['rateDriver'];
+                }
+            }
+        }
+
+        $count = $count + 1;
+        $sumRate = $sumRate + $request['rerataRating'];
+        $average = $sumRate / $count;
+
+        //menimpa data
+        $driver->rerataRating = $average;
+
+        if($driver->save()){
+            return response([
+                'message' => 'Update Rerata Driver Success',
+                'data' => $driver
+            ], 200);
+        }
+
+        return response([
+            'message' => 'Update Rerata Driver Failed',
+            'data' => null,
+        ], 200);// Found
+
+    }
 
     public function destroy($id){
         $driver = Driver::where('idDriver' , '=', $id)->first();

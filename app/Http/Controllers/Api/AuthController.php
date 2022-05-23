@@ -108,4 +108,88 @@ class AuthController extends Controller
 
     }
 
+    public function loginMobile(Request $request){
+        $loginData = $request->all();
+
+        if(User::where('email', '=', $loginData['email'])->first()){
+            $user = User::where('email' , '=', $loginData['email'])->first();
+            if($user['waiting'] == 1){
+                $err_message = 'Akun anda masih dalam proses verifikasi';
+                return response([
+                    'message' => $err_message,
+                ], 400);
+            }
+
+            if(Hash::check($loginData['password'], $user['password'])){
+                $token = Str::random(80);
+
+                $user->api_token = hash('sha256', $token);
+                $user->save();
+
+                return response([
+                    'message' => 'Customer Authenticated',
+                    'user' => $user,
+                    'token_type' => 'Bearer',
+                    'token' => $token,
+                    'role' => 'customer'
+                ]); // return data user dan token dalam bentuk json
+            }else{
+                $err_message = 'Wrong Password';
+                return response([
+                    'message' => $err_message,
+                ], 400);
+            }
+        }else if(Driver::where('email', '=', $loginData['email'])->first()){
+            $driver = Driver::where('email' , '=', $loginData['email'])->first();
+
+            if(Hash::check($loginData['password'], $driver['password'])){
+                $token = Str::random(80);
+
+                $driver->api_token = hash('sha256', $token);
+                $driver->save();
+
+                return response([
+                    'message' => 'Driver Authenticated',
+                    'user' => $driver,
+                    'token_type' => 'Bearer',
+                    'token' => $token,
+                    'role' => 'driver'
+                ]); // return data user dan token dalam bentuk json
+            }else{
+                $err_message = 'Wrong Password';
+                return response([
+                    'message' => $err_message,
+                ], 400);
+            }
+        }else if(Pegawai::where('email', '=', $loginData['email'])->first()){
+            $pegawai = Pegawai::where('email' , '=', $loginData['email'])->first();
+
+            if(Hash::check($loginData['password'], $pegawai['password'])){
+                $token = Str::random(80);
+
+                $pegawai->api_token = hash('sha256', $token);
+                $pegawai->save();
+
+                return response([
+                    'message' => 'Pegawai Authenticated',
+                    'user' => $pegawai,
+                    'token_type' => 'Bearer',
+                    'token' => $token,
+                    'role' => 'pegawai'
+                ]); // return data user dan token dalam bentuk json
+            }else{
+                $err_message = 'Wrong Password';
+                return response([
+                    'message' => $err_message,
+                ], 400);
+            }
+        }else{
+            $err_message = "Check your email, such email doesn't exist";
+            return response([
+                'message' => $err_message,
+                'user' => null,
+            ], 400); // return data user dan token dalam bentuk json
+        }
+    }
+
 }

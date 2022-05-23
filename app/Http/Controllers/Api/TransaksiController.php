@@ -72,6 +72,29 @@ class TransaksiController extends Controller
         ], 400);// not Found
     }
 
+    public function showTransaksiJoinLengkapByCustomer(Request $request, $idCustomer){
+        $transaksi = Transaksi::leftJoin('pembayarans', 'pembayarans.idPembayaran', '=', 'transaksis.idPembayaran')
+                    ->leftJoin('users', 'users.idCustomer', '=', 'transaksis.idCustomer')
+                    ->leftJoin('drivers', 'drivers.idDriver', '=', 'transaksis.idDriver')
+                    ->leftJoin('pegawais', 'pegawais.idPegawai', '=', 'transaksis.idPegawai')
+                    ->leftJoin('mobils', 'mobils.idMobil', '=', 'pembayarans.idMobil')
+                    ->leftJoin('promos', 'promos.idPromo', '=', 'pembayarans.idPromo')
+                    ->where('transaksis.idCustomer', '=', $idCustomer)
+                    ->get(); // mencari data berdasarkan id
+
+        if(count($transaksi)>0){
+            return response([
+                'message' => 'Retrieve Transaksi Success',
+                'data' => $transaksi,
+            ], 200);// Found
+        }
+
+        return response([
+            'message' => 'Transaksi Not Found',
+            'data' => null
+        ], 400);// not Found
+    }
+
     public function showTransaksiInProgress(Request $request, $idCustomer){
         $transaksi = Transaksi::where('idCustomer' , '=', $idCustomer)
                     ->join('pembayarans', 'pembayarans.idPembayaran', '=', 'transaksis.idPembayaran')
@@ -218,14 +241,16 @@ class TransaksiController extends Controller
         if($validate->fails())
             return response(['message' => $validate->errors()], 400);// if validate errors
 
-        $last_transaksi = DB::table('transaksis')->latest('idTransaksi')->first();
-        if(is_null($last_transaksi)){
+        //$last_transaksi = DB::table('transaksis')->latest('idTransaksi')->first();
+        $allTransaksi = Transaksi::all();
+        if(count($allTransaksi) == 0){
             $new_id = '1';
         }else{
-            $substr_id = Str::substr((string)$last_transaksi->idTransaksi, 12);
-            $new_id = (int)$substr_id + 1;
+            $count = count($allTransaksi) + 1;
+            //$substr_id = Str::substr((string)$last_transaksi->idTransaksi, 12);
+            //$new_id = (int)$substr_id + 1;
         }
-        $generateNumId = Str::padLeft((string)$new_id, 3, '0');
+        $generateNumId = Str::padLeft((string)$count, 3, '0');
 
         $registerDate = Carbon::now()->format('ymd');
         $tanggalTransakasi = Carbon::now();
@@ -467,4 +492,5 @@ class TransaksiController extends Controller
             'data' => null
         ], 400);
     }
+
 }
