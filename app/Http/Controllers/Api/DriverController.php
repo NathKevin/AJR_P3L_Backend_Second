@@ -190,12 +190,11 @@ class DriverController extends Controller
             'jenisKelaminDriver' => 'required|max:10',
             'noTelpDriver' => 'required|digits_between:10,13|regex:/^((08))/|numeric',
             'bahasa' => 'required|max:60',
-            'fotoDriver' => 'required',
         ]);//validate inputan user
 
-        $err_message = array(array('Pastikan Semua Field Terisi'));
-        if($checkRequest['namaDriver'] == 'null' || $checkRequest['alamatDriver'] == 'null' || $checkRequest['tanggalLahirDriver'] == 'null' ||
-            $checkRequest['jenisKelaminDriver'] == 'null' || $checkRequest['noTelpDriver'] == 'null' || $checkRequest['bahasa'] == 'null'){
+        $err_message = 'Pastikan Semua Field Terisi';
+        if($updateDriver['namaDriver'] == 'null' || $updateDriver['alamatDriver'] == 'null' || $updateDriver['tanggalLahirDriver'] == 'null' ||
+            $updateDriver['jenisKelaminDriver'] == 'null' || $updateDriver['noTelpDriver'] == 'null' || $updateDriver['bahasa'] == 'null'){
                 return response(['message' => $err_message], 400); //return eror invalid input
             }
 
@@ -210,7 +209,6 @@ class DriverController extends Controller
         $driver->jenisKelaminDriver = $updateDriver['jenisKelaminDriver'];
         $driver->noTelpDriver = $updateDriver['noTelpDriver'];
         $driver->bahasa = $updateDriver['bahasa'];
-        $driver->fotoDriver = $updateDriver['fotoDriver'];
 
         if($driver->save()){
             return response([
@@ -312,7 +310,7 @@ class DriverController extends Controller
     public function updateEmail(Request $request, $id){
         $driver = Driver::where('idDriver' , '=', $id)->first();
 
-        $err_message = array(array('Driver Not Found'));
+        $err_message = 'Driver Not Found';
         if(is_null($driver)){
             return response([
                 'message' => $err_message,
@@ -325,7 +323,7 @@ class DriverController extends Controller
             'email' => ['required', 'email:rfc,dns', Rule::unique('drivers')->ignore($driver), Rule::unique('users'), Rule::unique('pegawais')],
         ]);// validasi inputan update user
 
-        $err_message = array(array('Email baru harus terisi'));
+        $err_message = 'Email baru harus terisi';
         if($updateData['email'] == null){
             return response(['message' => $err_message], 400);
         }
@@ -353,7 +351,7 @@ class DriverController extends Controller
     public function updatePassword(Request $request, $id){
         $driver = Driver::where('idDriver' , '=', $id)->first();
 
-        $err_message = array(array('Driver Not Found'));
+        $err_message = 'Driver Not Found';
         if(is_null($driver)){
             return response([
                 'message' => $err_message,
@@ -366,7 +364,7 @@ class DriverController extends Controller
             'password' => 'required|regex:/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/'
         ]);// validasi inputan update user
 
-        $err_message = array(array('Password Field harus terisi semua'));
+        $err_message = 'Password Field harus terisi semua';
         if($updateData['oldPassword'] == null || $updateData['password'] == null){
             return response(['message' => $err_message], 400);
         }
@@ -374,10 +372,14 @@ class DriverController extends Controller
         if($validate->fails())
             return response(['message' => $validate->errors()], 400); //return error invalid input
 
-        $updateData['password'] = Hash::make($request->password);//enkripsi password
-
-        //mengedit timpa data yang lama dengan yang baru
-        $driver->password = $updateData['password'];
+        if(Hash::check($updateData['oldPassword'], $driver['password'])){
+            $updateData['password'] = Hash::make($request->password);//enkripsi password
+            //mengedit timpa data yang lama dengan yang baru
+            $driver->password = $updateData['password'];
+        }else{
+            $err_message = 'Password lama tidak sesuai';
+            return response(['message' => $err_message], 400);
+        }
 
         if($driver->save()){
             return response([
