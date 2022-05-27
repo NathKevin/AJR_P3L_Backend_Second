@@ -95,6 +95,29 @@ class TransaksiController extends Controller
         ], 400);// not Found
     }
 
+    public function showTransaksiJoinLengkapByDriver(Request $request, $idDriver){
+        $transaksi = Transaksi::leftJoin('pembayarans', 'pembayarans.idPembayaran', '=', 'transaksis.idPembayaran')
+                    ->leftJoin('users', 'users.idCustomer', '=', 'transaksis.idCustomer')
+                    ->leftJoin('drivers', 'drivers.idDriver', '=', 'transaksis.idDriver')
+                    ->leftJoin('pegawais', 'pegawais.idPegawai', '=', 'transaksis.idPegawai')
+                    ->leftJoin('mobils', 'mobils.idMobil', '=', 'pembayarans.idMobil')
+                    ->leftJoin('promos', 'promos.idPromo', '=', 'pembayarans.idPromo')
+                    ->where('transaksis.idDriver', '=', $idDriver)
+                    ->get(); // mencari data berdasarkan id
+
+        if(count($transaksi)>0){
+            return response([
+                'message' => 'Retrieve Transaksi Success',
+                'data' => $transaksi,
+            ], 200);// Found
+        }
+
+        return response([
+            'message' => 'Transaksi Not Found',
+            'data' => null
+        ], 400);// not Found
+    }
+
     public function showTransaksiInProgress(Request $request, $idCustomer){
         $transaksi = Transaksi::where('idCustomer' , '=', $idCustomer)
                     ->join('pembayarans', 'pembayarans.idPembayaran', '=', 'transaksis.idPembayaran')
@@ -293,17 +316,20 @@ class TransaksiController extends Controller
         ], 200); // return data berupa json
     }
 
-    public function countCustomer(){
+    public function countCustomer($tglMulai, $tglSelesai){
         $order_count_customer = DB::table('transaksis')
                                 ->join('users' , 'transaksis.idCustomer' , '=', 'users.idCustomer')
-                                ->select('users.namaCustomer', DB::raw('count(*) as totalTransaksi'))
-                                ->groupBy('users.namaCustomer')
-                                ->orderBy('totalTransaksi')
+                                ->select('users.idCustomer', 'users.namaCustomer', DB::raw('count(*) as totalTransaksi'))
+                                ->whereBetween('tanggalTransaksi', [$tglMulai, $tglSelesai])
+                                ->where('transaksis.statusTransaksi', '=', 'Selesai')
+                                ->groupBy('users.namaCustomer', 'users.idCustomer')
+                                ->orderBy('totalTransaksi', 'desc')
+                                ->take(5)
                                 ->get();
 
         if(is_null($order_count_customer)){
             return response([
-                'message' => 'Empty',
+                'message' => 'Data Transaksi Tidak Ditemukan',
                 'data' => null
             ], 400);
         }
@@ -314,24 +340,102 @@ class TransaksiController extends Controller
         ], 200);
     }
 
-    public function countDriver(){
+    public function countDriver($tglMulai, $tglSelesai){
         $order_count_driver = DB::table('transaksis')
                                 ->join('drivers' , 'transaksis.idDriver' , '=', 'drivers.idDriver')
-                                ->select('drivers.namaDriver', DB::raw('count(*) as totalTransaksi'))
-                                ->groupBy('drivers.namaDriver')
-                                ->orderBy('totalTransaksi')
+                                ->select('drivers.idDriver', 'drivers.namaDriver', DB::raw('count(*) as totalTransaksi'))
+                                ->whereBetween('tanggalTransaksi', [$tglMulai, $tglSelesai])
+                                ->where('transaksis.statusTransaksi', '=', 'Selesai')
+                                ->groupBy('drivers.namaDriver', 'drivers.idDriver')
+                                ->orderBy('totalTransaksi', 'desc')
+                                ->take(5)
                                 ->get();
 
         if(is_null($order_count_driver)){
             return response([
-                'message' => 'Empty',
+                'message' => 'Data Transaksi Tidak Ditemukan',
                 'data' => null
             ], 400);
         }
 
         return response([
-            'message' => 'Count Customer Transaksi Success',
+            'message' => 'Count Driver Transaksi Success',
             'data' => $order_count_driver,
+        ], 200);
+    }
+
+    public function countPendapatanMobil($tglMulai, $tglSelesai){
+        $count_mobil = DB::table('transaksis')
+                                ->join('pembayarans' , 'transaksis.idPembayaran' , '=', 'pembayarans.idPembayaran')
+                                ->join('mobils' , 'pembayarans.idMobil' , '=', 'mobils.idMobil')
+                                ->select('mobils.idMobil', 'mobils.tipeMobil', 'mobils.namaMobil', DB::raw('count(*) as jumlahPeminjaman'), DB::raw('SUM(pembayarans.totalBiayaMobil) as pendapatan'))
+                                ->whereBetween('tanggalTransaksi', [$tglMulai, $tglSelesai])
+                                ->where('transaksis.statusTransaksi', '=', 'Selesai')
+                                ->groupBy('mobils.idMobil', 'mobils.tipeMobil', 'mobils.namaMobil')
+                                ->orderBy('jumlahPeminjaman', 'desc')
+                                ->get();
+
+        if(count($count_mobil) > 0){
+            return response([
+                'message' => 'Count Pendapatan Mobil Success',
+                'data' => $count_mobil
+            ], 200);
+        }
+
+        return response([
+            'message' => 'Data Transaksi Tidak Ditemukan',
+            'data' => null,
+        ], 400);
+    }
+
+    public function countDetilTransaksi($tglMulai, $tglSelesai){
+        $count_detil = DB::table('transaksis')
+                                ->join('users' , 'transaksis.idCustomer' , '=', 'users.idCustomer')
+                                ->join('pembayarans' , 'transaksis.idPembayaran' , '=', 'pembayarans.idPembayaran')
+                                ->join('mobils' , 'pembayarans.idMobil' , '=', 'mobils.idMobil')
+                                ->select('users.namaCustomer', 'mobils.namaMobil', DB::raw('(CASE
+                                    WHEN transaksis.idDriver is NULL THEN "Peminjaman Mobil"
+                                    ELSE "Peminjaman Mobil + Driver"
+                                    END) as jenisTransaksi'), DB::raw('count(*) as jumlahTransaksi'), DB::raw('SUM(pembayarans.totalBiaya) as pendapatan'))
+                                ->whereBetween('tanggalTransaksi', [$tglMulai, $tglSelesai])
+                                ->where('transaksis.statusTransaksi', '=', 'Selesai')
+                                ->groupBy('users.namaCustomer', 'mobils.namaMobil', 'jenisTransaksi')
+                                ->orderBy('users.namaCustomer', 'asc')
+                                ->get();
+
+        if(is_null($count_detil)){
+            return response([
+                'message' => 'Data Transaksi Tidak Ditemukan',
+                'data' => null
+            ], 400);
+        }
+
+        return response([
+            'message' => 'Count Detil Transaksi Success',
+            'data' => $count_detil,
+        ], 200);
+    }
+
+    public function countPerformaDriver($tglMulai, $tglSelesai){
+        $count_driver = DB::table('transaksis')
+                                ->join('drivers' , 'transaksis.idDriver' , '=', 'drivers.idDriver')
+                                ->select('drivers.idDriver', 'drivers.namaDriver', DB::raw('count(*) as totalTransaksi'),'drivers.rerataRating')
+                                ->whereBetween('tanggalTransaksi', [$tglMulai, $tglSelesai])
+                                ->where('transaksis.statusTransaksi', '=', 'Selesai')
+                                ->groupBy('drivers.namaDriver', 'drivers.idDriver', 'drivers.rerataRating')
+                                ->orderBy('totalTransaksi', 'desc')
+                                ->get();
+
+        if(is_null($count_driver)){
+            return response([
+                'message' => 'Data Transaksi Tidak Ditemukan',
+                'data' => null
+            ], 400);
+        }
+
+        return response([
+            'message' => 'Count Driver Transaksi Success',
+            'data' => $count_driver,
         ], 200);
     }
 

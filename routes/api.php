@@ -170,8 +170,11 @@ Route::get('pembayaran','Api\PembayaranController@index');
 //--------------------------------------------------------------------------------------
 //Transaksi(role by CS & Manager)
 Route::get('transaksi','Api\TransaksiController@index');
-Route::get('countCustomer/transaksi','Api\TransaksiController@countCustomer');
-Route::get('countDriver/transaksi','Api\TransaksiController@countDriver');
+Route::get('countCustomer/transaksi/{tglMulai}/{tglSelesai}','Api\TransaksiController@countCustomer');
+Route::get('countDriver/transaksi/{tglMulai}/{tglSelesai}','Api\TransaksiController@countDriver');
+Route::get('countMobil/transaksi/{tglMulai}/{tglSelesai}','Api\TransaksiController@countPendapatanMobil');
+Route::get('countDetil/transaksi/{tglMulai}/{tglSelesai}','Api\TransaksiController@countDetilTransaksi');
+Route::get('countPerforma/transaksi/{tglMulai}/{tglSelesai}','Api\TransaksiController@countPerformaDriver');
 Route::put('updateStatus/transaksi/{id}','Api\TransaksiController@updateStatus');
 Route::put('updateStatus/pembayaran/{id}','Api\PembayaranController@updateStatus');
 Route::post('updateBuktiTransfer/pembayaran/{id}','Api\PembayaranController@updateBuktiTransaksi');
@@ -180,6 +183,7 @@ Route::put('updateStatusBerkas/customer/{id}','Api\UserController@updateStatus')
 Route::get('showAll/customer','Api\UserController@index');
 Route::get('showLengkap/transaksi/{idT}','Api\TransaksiController@showTransaksiJoinLengkap');
 Route::get('showLengkapByCustomer/transaksi/{idC}','Api\TransaksiController@showTransaksiJoinLengkapByCustomer');
+Route::get('showLengkapByDriver/transaksi/{idD}','Api\TransaksiController@showTransaksiJoinLengkapByDriver');
 Route::get('showMenungguKonfirmasi/transaksi','Api\TransaksiController@showTransaksiMenungguKonfirmasi');
 Route::get('showForCS/transaksi/{status}','Api\TransaksiController@showTransaksiForCS');
 Route::get('showUbah/transaksi/{idC}','Api\TransaksiController@showUbahTransaksiCustomer');
