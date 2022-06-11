@@ -384,4 +384,38 @@ class UserController extends Controller
         ], 400);
     }
 
+    public function updateRateC(Request $request, $id){
+        $user = User::where('idCustomer' , '=', $id)->first();
+
+        if(is_null($user)){
+            return response([
+                'message' => 'user Not Found',
+                'data' => null
+            ], 404);
+        }// data tidak ditemukan
+
+        $updateData = $request->all();//ambil semua inputan dari user
+        if($updateData['ratingAJR'] == null || $updateData['ratingAJR'] == 'null' || $updateData['performaAJR'] == null || $updateData['performaAJR'] == "null"){
+            return response([
+                'message' => 'Pastikan Rate dan Ulasan terisi',
+                'data' => null
+            ], 404);
+        }
+
+        $user->ratingAJR = $updateData['ratingAJR'];
+        $user->performaAJR = $updateData['performaAJR'];
+
+        if($user->save()){
+            return response([
+                'message' => 'Terimakasih atas tanggapan anda',
+                'data' => $user
+            ], 200);
+        }// return data  yang telah di edit dalam bentuk json
+
+        return response([
+            'message' => 'Update Rate Failed',
+            'data' => null
+        ], 400); //return message saat course gagal di edit
+    }
+
 }

@@ -90,33 +90,33 @@ class DriverController extends Controller
         ]);//validasi inputan driver$driver
 
         $err_message = array(array('Pastikan Semua Field Terisi'));
-        if($checkRequest['namaDriver'] == 'null' || $checkRequest['alamatDriver'] == 'null' || $checkRequest['tanggalLahirDriver'] == 'null' ||
-            $checkRequest['jenisKelaminDriver'] == 'null' || $checkRequest['email'] == 'null' || $checkRequest['password'] == 'null' ||
-            $checkRequest['noTelpDriver'] == 'null' || $checkRequest['bahasa'] == 'null' || $checkRequest['hargaSewaDriver'] == 'null'){
+        if($checkRequest['namaDriver'] == null || $checkRequest['alamatDriver'] == null || $checkRequest['tanggalLahirDriver'] == null ||
+            $checkRequest['jenisKelaminDriver'] == null || $checkRequest['email'] == null || $checkRequest['password'] == null ||
+            $checkRequest['noTelpDriver'] == null || $checkRequest['bahasa'] == null || $checkRequest['hargaSewaDriver'] == null){
                 return response(['message' => $err_message], 400); //return eror invalid input
             }
 
-        if($checkRequest['fotoDriver'] == 'null'){
+        if($checkRequest['fotoDriver'] == null){
             $err_message = array(array('Foto Driver Harus Terisi'));
             return response(['message' => $err_message], 400); //return eror invalid input
         }
-        if($checkRequest['fotocopySIM'] == 'null'){
+        if($checkRequest['fotocopySIM'] == null){
             $err_message = array(array('File Gambar Fotocopy SIM Harus Terisi'));
             return response(['message' => $err_message], 400); //return eror invalid input
         }
-        if($checkRequest['bebasNAPZA'] == 'null'){
+        if($checkRequest['bebasNAPZA'] == null){
             $err_message = array(array('File Gambar Bebas NAPZA Harus Terisi'));
             return response(['message' => $err_message], 400); //return eror invalid input
         }
-        if($checkRequest['kesehatanJiwa'] == 'null'){
+        if($checkRequest['kesehatanJiwa'] == null){
             $err_message = array(array('File Gambar Kesehatan Jiwa Harus Terisi'));
             return response(['message' => $err_message], 400); //return eror invalid input
         }
-        if($checkRequest['kesehatanJasmani'] == 'null'){
+        if($checkRequest['kesehatanJasmani'] == null){
             $err_message = array(array('File Gambar Kesehatan Jasmani Harus Terisi'));
             return response(['message' => $err_message], 400); //return eror invalid input
         }
-        if($checkRequest['SKCK'] == 'null'){
+        if($checkRequest['SKCK'] == null){
             $err_message = array(array('File Gambar SKCK Harus Terisi'));
             return response(['message' => $err_message], 400); //return eror invalid input
         }
@@ -193,8 +193,8 @@ class DriverController extends Controller
         ]);//validate inputan user
 
         $err_message = 'Pastikan Semua Field Terisi';
-        if($updateDriver['namaDriver'] == 'null' || $updateDriver['alamatDriver'] == 'null' || $updateDriver['tanggalLahirDriver'] == 'null' ||
-            $updateDriver['jenisKelaminDriver'] == 'null' || $updateDriver['noTelpDriver'] == 'null' || $updateDriver['bahasa'] == 'null'){
+        if($updateDriver['namaDriver'] == null || $updateDriver['alamatDriver'] == null || $updateDriver['tanggalLahirDriver'] == null ||
+            $updateDriver['jenisKelaminDriver'] == null || $updateDriver['noTelpDriver'] == null || $updateDriver['bahasa'] == null){
                 return response(['message' => $err_message], 400); //return eror invalid input
             }
 
@@ -248,9 +248,9 @@ class DriverController extends Controller
         ]);//validate inputan user
 
         $err_message = array(array('Pastikan Semua Field Terisi'));
-        if($updateDriver['namaDriver'] == 'null' || $updateDriver['alamatDriver'] == 'null' || $updateDriver['tanggalLahirDriver'] == 'null' ||
-            $updateDriver['jenisKelaminDriver'] == 'null' || $updateDriver['noTelpDriver'] == 'null' || $updateDriver['bahasa'] == 'null' ||
-            $updateDriver['hargaSewaDriver'] == 'null'){
+        if($updateDriver['namaDriver'] == null || $updateDriver['alamatDriver'] == null || $updateDriver['tanggalLahirDriver'] == null ||
+            $updateDriver['jenisKelaminDriver'] == null || $updateDriver['noTelpDriver'] == null || $updateDriver['bahasa'] == null ||
+            $updateDriver['hargaSewaDriver'] == null){
                 return response(['message' => $err_message], 400); //return eror invalid input
             }
 

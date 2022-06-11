@@ -64,6 +64,7 @@ Route::put('updateEmail/customer/{id}', 'Api\UserController@updateEmail');
 Route::put('deleteSIM/customer/{id}', 'Api\UserController@deleteSIM');
 Route::put('deleteKP/customer/{id}', 'Api\UserController@deleteKP');
 Route::put('updatePassword/customer/{id}', 'Api\UserController@updatePassword');
+Route::put('updateRate/customer/{id}', 'Api\UserController@updateRateC');
 Route::get('show/customer/{id}', 'Api\UserController@show');
 //--------------------------------------------------------------------------------------
 //Pembayaran Create

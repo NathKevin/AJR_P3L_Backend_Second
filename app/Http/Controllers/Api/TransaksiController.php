@@ -578,6 +578,10 @@ class TransaksiController extends Controller
             'performaDriver' => 'required|max:100',
         ]);// validai inputan
 
+        if($updateTransaksi['performaDriver'] == null ){
+            return response(['message' => "Performa Driver Kosong"], 400);// if validate errors
+        }
+
         if($validate->fails())
             return response(['message' => $validate->errors()], 400);// if validate errors
 
