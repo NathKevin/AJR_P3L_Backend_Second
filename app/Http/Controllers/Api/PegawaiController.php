@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Pegawai;
-use Validator; 
+use Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
@@ -26,7 +26,7 @@ class PegawaiController extends Controller
                 'data' => $pegawai
             ], 200);
         }//return semua data
-   
+
         return response([
             'message' => 'Empty',
             'data' => null
@@ -47,7 +47,7 @@ class PegawaiController extends Controller
                 'data' => $pegawai
             ], 200);
         }//return semua data
-   
+
         return response([
             'message' => 'Empty',
             'data' => null
@@ -78,7 +78,7 @@ class PegawaiController extends Controller
             'alamatPegawai' => 'required|max:60',
             'tanggalLahirPegawai' => 'required|date',
             'jenisKelaminPegawai' => 'required',
-            'email' => 'required|email:rfc,dns|unique:Pegawais|unique:users|unique:pegawais',
+            'email' => 'required|email:rfc,dns|unique:pegawais|unique:users|unique:drivers',
             'password' => 'required',
             'noTelpPegawai' => 'required|digits_between:10,13|regex:/^((08))/|numeric',
         ], [],
@@ -92,7 +92,7 @@ class PegawaiController extends Controller
         $err_message = array(array('Pastikan Field Terisi Semua')); //di array dalam array karena di frontend nanti di nestedloop
 
         if($dataPegawai['idRole'] == 'null' || $dataPegawai['namaPegawai'] == 'null' || $dataPegawai['alamatPegawai'] == 'null' ||
-            $dataPegawai['tanggalLahirPegawai'] == 'null' || $dataPegawai['jenisKelaminPegawai'] == 'null' || $dataPegawai['email'] == 'null' || 
+            $dataPegawai['tanggalLahirPegawai'] == 'null' || $dataPegawai['jenisKelaminPegawai'] == 'null' || $dataPegawai['email'] == 'null' ||
             $dataPegawai['noTelpPegawai'] == 'null'){
                 return response([ 'message' => $err_message], 400); //validate failed
             }
@@ -100,7 +100,7 @@ class PegawaiController extends Controller
         if($validate->fails()){
             return response([ 'message' => $validate->errors()], 400); //validate failed
         }
-    
+
         if($dataPegawai['fotoPegawai'] != 'null'){
             $validateImg = Validator::make($dataPegawai , [
                 'fotoPegawai' => 'required|max:1024|mimes:jpg,png,jpeg|image',
@@ -149,8 +149,8 @@ class PegawaiController extends Controller
                 'data' => null
             ], 400); //Pegawai not Found
         }
-        
-        $updatePegawai = $request->all();    
+
+        $updatePegawai = $request->all();
         $validate = Validator($updatePegawai, [
             'idRole' => 'required',
             'namaPegawai' => 'required|max:60',
@@ -159,18 +159,18 @@ class PegawaiController extends Controller
             'jenisKelaminPegawai' => 'required',
             'noTelpPegawai' => 'required|digits_between:10,13|regex:/^((08))/|numeric',
             'fotoPegawai' => 'max:1024|mimes:jpg,png,jpeg|image',
-        ]);// validasi inputan 
-        
+        ]);// validasi inputan
+
         $err_message = array(array('Pastikan Field Terisi Semua'));
         if($updatePegawai['idRole'] == 'null' || $updatePegawai['namaPegawai'] == 'null' || $updatePegawai['alamatPegawai'] == 'null' ||
-            $updatePegawai['tanggalLahirPegawai'] == 'null' || $updatePegawai['jenisKelaminPegawai'] == 'null' || 
+            $updatePegawai['tanggalLahirPegawai'] == 'null' || $updatePegawai['jenisKelaminPegawai'] == 'null' ||
             $updatePegawai['noTelpPegawai'] == 'null'){
                 return response([ 'message' => $err_message], 400); //validate failed
             }
 
         if($validate->fails())
             return response(['message' => $validate->errors()], 400);// if validate errors
-            
+
         //menimpa data
         $pegawai->idRole = $updatePegawai['idRole'];
         $pegawai->namaPegawai = $updatePegawai['namaPegawai'];
@@ -207,15 +207,15 @@ class PegawaiController extends Controller
                 'data' => null
             ], 400); //Pegawai not Found
         }
-        
-        $updatePegawai = $request->all();    
+
+        $updatePegawai = $request->all();
         $validate = Validator($updatePegawai, [
             'isActive' => 'required',
-        ]);// validasi inputan 
+        ]);// validasi inputan
 
         if($validate->fails())
             return response(['message' => $validate->errors()], 400);// if validate errors
-            
+
         //menimpa data
         $pegawai->isActive = $updatePegawai['isActive'];
 
@@ -256,7 +256,7 @@ class PegawaiController extends Controller
 
         if($validate->fails())
         return response(['message' => $validate->errors()], 400); //return error invalid input
-        
+
         if(Hash::check($updateData['oldPassword'], $pegawai['password'])){
             $updateData['password'] = Hash::make($request->password);//enkripsi password
         }else{
@@ -291,12 +291,12 @@ class PegawaiController extends Controller
                 'data' => null
             ], 404);
         }// data tidak ditemukan
-        
+
         $updateData = $request->all();//ambil semua inputan dari user
         $validate = Validator::make($updateData, [
             'email' => ['required', 'email:rfc,dns', Rule::unique('pegawais')->ignore($pegawai), Rule::unique('users'), Rule::unique('drivers')],
         ]);// validasi inputan update user
-        
+
         $err_message = array(array('Email baru harus terisi'));
         if($updateData['email'] == null){
             return response(['message' => $err_message], 400);
@@ -304,7 +304,7 @@ class PegawaiController extends Controller
 
         if($validate->fails())
             return response(['message' => $validate->errors()], 400); //return error invalid input
-        
+
         //mengedit timpa data yang lama dengan yang baru
         $pegawai->email = $updateData['email'];
 

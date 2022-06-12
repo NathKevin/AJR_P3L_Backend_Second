@@ -22,7 +22,7 @@ class UserController extends Controller
             'tanggalLahirCustomer' => 'required',
             'jenisKelaminCustomer' => 'required',
             'kategoriCustomer' => 'required',
-            'email' => 'required|email:rfc,dns|unique:users|unique:drivers|unique:users',
+            'email' => 'required|email:rfc,dns|unique:users|unique:drivers|unique:pegawais',
             'password' => 'required|regex:/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/',
             'noTelpCustomer' => 'required|digits_between:10,13|regex:/^((08))/|numeric',
             'KTP' => 'required'

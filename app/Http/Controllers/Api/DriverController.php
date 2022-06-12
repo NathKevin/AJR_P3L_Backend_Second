@@ -77,7 +77,7 @@ class DriverController extends Controller
             'alamatDriver' => 'required|max:60',
             'tanggalLahirDriver' => 'required|date',
             'jenisKelaminDriver' => 'required|max:10',
-            'email' => 'required|email:rfc,dns|unique:drivers|unique:users|unique:drivers',
+            'email' => 'required|email:rfc,dns|unique:drivers|unique:users|unique:pegawais',
             'noTelpDriver' => 'required|digits_between:10,13|regex:/^((08))/|numeric',
             'bahasa' => 'required|max:60',
             'hargaSewaDriver' => 'required|numeric',
